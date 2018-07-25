@@ -1,3 +1,3 @@
 # OTUS Linux administrator cource. Homeworks and other stuff.
-1. С чего начинается Linux.
-2. Дисковая подсистема.
+1. РЎ С‡РµРіРѕ РЅР°С‡РёРЅР°РµС‚СЃСЏ Linux.
+2. Р”РёСЃРєРѕРІР°СЏ РїРѕРґСЃРёСЃС‚РµРјР°.
