@@ -1,2 +1,3 @@
 # vbox disks
 *.vdi
+.vagrant/*
