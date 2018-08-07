@@ -90,9 +90,10 @@ Vagrant.configure("2") do |config|
               #with snapshots
               vgcreate VolGroup02 /dev/sdf
               lvcreate -l 50%FREE -n LogVol_home VolGroup02
+              # move data, edit fstab, remount               
               echo '###############################################'
               echo "creating test files..."
-              lvcreate -l 50%FREE -s -n LogVol_home_snap0 VolGroup02
+              lvcreate -l 50%FREE -s -n LogVol_home_snap0 /dev/mapper/VolGroup02-LogVol_home
               # rollback
               lvconvert --merge VolGroup02/LogVol_home_snap0 
               #lvremove VolGroup02/LogVol_home_snap0
