@@ -13,7 +13,7 @@ MACHINES = {
 		},
 		:sata2 => {
                         :dfile => './sata2.vdi',
-                        :size => 500, # Megabytes
+                        :size => 500,
 			:port => 2
 		},
                 :sata3 => {
@@ -23,10 +23,14 @@ MACHINES = {
                 },
                 :sata4 => {
                         :dfile => './sata4.vdi',
-                        :size => 500, # Megabytes
+                        :size => 500,
                         :port => 4
                 },
-
+                :sata5 => {
+                        :dfile => './sata5.vdi',
+                        :size => 500,
+                        :port => 5
+                }
 	}
 
 		
@@ -66,17 +70,32 @@ Vagrant.configure("2") do |config|
  	  box.vm.provision "shell", inline: <<-SHELL
 	      mkdir -p ~root/.ssh
               cp ~vagrant/.ssh/auth* ~root/.ssh
-              for i in b c d e; do pvcreate /dev/sd$i; done
+              for i in b c d e f; do pvcreate /dev/sd$i; done
               vgextend VolGroup00 /dev/sdb
               lvextend -l +100%FREE /dev/mapper/VolGroup00-LogVol00
               df /
               # extend root
+ 	      echo '###############################################'
+              echo "check size of / befoure"
               xfs_growfs /dev/mapper/VolGroup00-LogVol00  
+              echo "check size of / after"
               df /
+ 	      echo '###############################################'
               # create var
               # with mirror
+              vgcreate VolGroup01 /dev/sdc /dev/sde
+              lvcreate -l +100%FREE  -m1 -n LogVol_var VolGroup01
+              # move data, edit fstab, remount 
               # create home
               #with snapshots
+              vgcreate VolGroup02 /dev/sdf
+              lvcreate -l 50%FREE -n LogVol_home VolGroup02
+              echo '###############################################'
+              echo "creating test files..."
+              lvcreate -l 50%FREE -s -n LogVol_home_snap0 VolGroup02
+              # rollback
+              lvconvert --merge VolGroup02/LogVol_home_snap0 
+              #lvremove VolGroup02/LogVol_home_snap0
   	  SHELL
 
       end
