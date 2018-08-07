@@ -52,11 +52,10 @@ Vagrant.configure("2") do |config|
               setenforce 0
               mkdir -p ~root/.ssh
               cp ~vagrant/.ssh/auth* ~root/.ssh
-              # vgrename -v rootbvg rootvg
-              # edit grub
-              # edit fstab
-              #mkinitrd -f -v /boot/initramfs-$(uname -r).img $(uname -r)
-                 
+              vgrename -v VolGroup00 rootvg
+              sed -i 's/VolGroup00/rootvg/g' /boot/grub2/grub.cfg
+              sed -i 's/VolGroup00/rootvg/g' /etc/fstab
+              mkinitrd -f -v /boot/initramfs-$(uname -r).img $(uname -r)
   	  SHELL
 
       end
