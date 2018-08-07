@@ -73,6 +73,10 @@ Vagrant.configure("2") do |config|
               # extend root
               xfs_growfs /dev/mapper/VolGroup00-LogVol00  
               df /
+              # create var
+              # with mirror
+              # create home
+              #with snapshots
   	  SHELL
 
       end
