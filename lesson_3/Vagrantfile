@@ -68,35 +68,48 @@ Vagrant.configure("2") do |config|
                   end
           end
  	  box.vm.provision "shell", inline: <<-SHELL
-	      mkdir -p ~root/.ssh
+	      # selinux off or moving home will ruin sshkey login
+              setenforce 0
+              mkdir -p ~root/.ssh
               cp ~vagrant/.ssh/auth* ~root/.ssh
               for i in b c d e f; do pvcreate /dev/sd$i; done
               vgextend VolGroup00 /dev/sdb
               lvextend -l +100%FREE /dev/mapper/VolGroup00-LogVol00
+              # check size of / befoure resize
               df /
-              # extend root
- 	      echo '###############################################'
-              echo "check size of / befoure"
+              # extend ROOT
               xfs_growfs /dev/mapper/VolGroup00-LogVol00  
-              echo "check size of / after"
+              #check size of / after resize
               df /
- 	      echo '###############################################'
-              # create var
-              # with mirror
+              # create VAR with mirror
               vgcreate VolGroup01 /dev/sdc /dev/sde
               lvcreate -l +100%FREE  -m1 -n LogVol_var VolGroup01
-              # move data, edit fstab, remount 
-              # create home
-              #with snapshots
+              mkfs.xfs /dev/mapper/VolGroup01-LogVol_var
+              # create HOME
               vgcreate VolGroup02 /dev/sdf
               lvcreate -l 50%FREE -n LogVol_home VolGroup02
-              # move data, edit fstab, remount               
-              echo '###############################################'
-              echo "creating test files..."
+              mkfs.xfs /dev/mapper/VolGroup02-LogVol_home
+              # move data, edit fstab, remount
+              mkdir /home_new
+              mount /dev/mapper/VolGroup02-LogVol_home /home_new
+              rsync -av /home/* /home_new/
+              rm -rf /home/*
+              umount /home_new
+              echo '/dev/mapper/VolGroup02-LogVol_home /home xfs defaults 0 0' >>/etc/fstab
+              mount -a
+              touch /home/vagrant/foo.bar
+              ls /home/vagrant/foo.bar
+              #create snapshot
               lvcreate -l 50%FREE -s -n LogVol_home_snap0 /dev/mapper/VolGroup02-LogVol_home
+              # delete files
+              rm /home/vagrant/foo.bar
+              ls /home/vagrant/foo.bar
               # rollback
-              lvconvert --merge VolGroup02/LogVol_home_snap0 
-              #lvremove VolGroup02/LogVol_home_snap0
+              umount /home 
+              lvconvert --merge VolGroup02/LogVol_home_snap0
+              mount -a
+              # check again
+              ls /home/vagrant/foo.bar
   	  SHELL
 
       end
