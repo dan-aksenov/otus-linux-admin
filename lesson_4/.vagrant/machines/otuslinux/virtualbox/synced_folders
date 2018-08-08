@@ -1,0 +1,1 @@
+{"rsync":{"/vagrant":{"type":"rsync","guestpath":"/vagrant","hostpath":"C:/Users/daniil.aksenov/Documents/GitHub/otus-linux-admin/lesson_4","disabled":false,"__vagrantfile":true,"owner":"vagrant","group":"vagrant"}}}
