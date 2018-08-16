@@ -53,9 +53,14 @@ Vagrant.configure("2") do |config|
               setenforce 0
               mkdir -p ~root/.ssh
               cp ~vagrant/.ssh/auth* ~root/.ssh
+              yum install epel-release -y
+              yum install spawn-fcgi httpd monit -y
               echo 
-              echo 2nd task.   
-              yum install httpd              
+              echo 1st task. Monitor systemlog with monit
+              cp /vagrant/monit.log /etc/monit.d/test
+              systemctl start monit  
+              echo 
+              echo 2nd task. httpd with different configs.
               cp /vagrant/httpd@.service /etc/systemd/system/httpd@.service
               cp /etc/sysconfig/httpd /etc/sysconfig/httpd2
               systemctl daemon-reload
@@ -64,9 +69,7 @@ Vagrant.configure("2") do |config|
               echo Start httpd with second config. It wont start, because configs are the same
               systemctl start httpd@httpd2                              
               echo 
-              echo 3rd task.   
-              yum install epel-release -y
-              yum install spawn-fcgi -y
+              echo 3rd task. fast cgi systemd. It starts, but fails after because of incorrect options.   
               cp /vagrant/spawn-fcgi.service /etc/systemd/system/spawn-fcgi.service
               sed -i 's/^#SOCKET/SOCKET/g' /etc/sysconfig/spawn-fcgi
               sed -i 's/^#OPTION/OPTION/g' /etc/sysconfig/spawn-fcgi

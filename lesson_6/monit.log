@@ -1,0 +1,3 @@
+check file messages with path /var/log/messages
+    ignore match ".*monit"
+    if match "main process exited" then alert
