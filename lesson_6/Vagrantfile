@@ -54,15 +54,12 @@ Vagrant.configure("2") do |config|
               mkdir -p ~root/.ssh
               cp ~vagrant/.ssh/auth* ~root/.ssh
               yum install epel-release -y
-<<<<<<< HEAD
               yum install spawn-fcgi httpd monit -y
               echo 
               echo 1st task. Monitor systemlog with monit
               cp /vagrant/monit.log /etc/monit.d/test
               systemctl start monit  
-=======
               yum install spawn-fcgi httpd -y
->>>>>>> 70f6e7c6b9176d04ddca3b561e83ae2bf92018ce
               echo 
               echo 2nd task. httpd with different configs.
               cp /vagrant/httpd@.service /etc/systemd/system/httpd@.service
