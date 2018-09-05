@@ -53,8 +53,6 @@ Vagrant.configure("2") do |config|
               setenforce 0
               mkdir -p ~root/.ssh
               cp ~vagrant/.ssh/auth* ~root/.ssh
-              yum install epel-release -y
-              yum install ansible -y
   	  SHELL
           box.vm.provision "ansible" do |ansible|
             ansible.playbook = "nginx/tests/test.yml"
