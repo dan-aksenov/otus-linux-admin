@@ -1,0 +1,6 @@
+---
+- hosts: all
+  remote_user: "{{ my_ansible_user }}"
+  roles:
+    - nginx
+  become: yes
