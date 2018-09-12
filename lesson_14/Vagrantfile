@@ -2,6 +2,7 @@
 # vim: set ft=ruby :
 
 MACHINES = {
+<<<<<<< HEAD
   :log => {
         :box_name => "centos/7",
         :ip_addr => '192.168.11.101',
@@ -9,10 +10,28 @@ MACHINES = {
   :web => {
         :box_name => "centos/7",
         :ip_addr => '192.168.11.102',
+=======
+  :otuslinux => {
+        :box_name => "centos/7",
+        :ip_addr => '192.168.11.101',
+	:disks => {
+		:sata1 => {
+			:dfile => './sata1.vdi',
+			:size => 100,
+			:port => 1
+		}
+	}
+
+		
+>>>>>>> f877b9bb2c0cf119d660965e43fb9923b25afe3a
   },
 }
 
 Vagrant.configure("2") do |config|
+<<<<<<< HEAD
+=======
+#  config.vm.synced_folder '.', '/vagrant', disabled: true
+>>>>>>> f877b9bb2c0cf119d660965e43fb9923b25afe3a
   MACHINES.each do |boxname, boxconfig|
 
       config.vm.define boxname do |box|
@@ -20,6 +39,7 @@ Vagrant.configure("2") do |config|
           box.vm.box = boxconfig[:box_name]
           box.vm.host_name = boxname.to_s
 
+<<<<<<< HEAD
           box.vm.network "private_network", ip: boxconfig[:ip_addr]
 
           box.vm.provider :virtualbox do |vb|
@@ -28,12 +48,52 @@ Vagrant.configure("2") do |config|
  	  box.vm.provision "shell", inline: <<-SHELL
               mkdir -p ~root/.ssh
               cp ~vagrant/.ssh/auth* ~root/.ssh
+=======
+#          box.vm.network "forwarded_port", guest: 3260, host: 3260+offset
+
+          box.vm.network "private_network", ip: boxconfig[:ip_addr]
+
+          box.vm.provider :virtualbox do |vb|
+                  # for boot messages
+            	  # vb.gui = true
+                  vb.customize ["modifyvm", :id, "--memory", "1024"]
+                  needsController = false
+		  boxconfig[:disks].each do |dname, dconf|
+			  unless File.exist?(dconf[:dfile])
+				vb.customize ['createhd', '--filename', dconf[:dfile], '--variant', 'Fixed', '--size', dconf[:size]]
+                                needsController =  true
+                          end
+
+		  end
+                  if needsController == true
+                     vb.customize ["storagectl", :id, "--name", "SATA", "--add", "sata" ]
+                     boxconfig[:disks].each do |dname, dconf|
+                         vb.customize ['storageattach', :id,  '--storagectl', 'SATA', '--port', dconf[:port], '--device', 0, '--type', 'hdd', '--medium', dconf[:dfile]]
+                     end
+                  end
+          end
+ 	  box.vm.provision "shell", inline: <<-SHELL
+              setenforce 0
+              mkdir -p ~root/.ssh
+              cp ~vagrant/.ssh/auth* ~root/.ssh
+      	      yum install -y rpm-build yum-utils gcc
+              yumdownloader --source httpd
+	      useradd mockbuild
+              rpm -i *.src.rpm
+              sed -i 's/disable-imagemap/enable-imagemap/g' /root/rpmbuild/SPECS/httpd.spec
+              yum-builddep /root/rpmbuild/SPECS/httpd.spec -y
+              rpmbuild -ba /root/rpmbuild/SPECS/*.spec
+              yum install -y /root/rpmbuild/RPMS/x86_64/httpd*.rpm
+>>>>>>> f877b9bb2c0cf119d660965e43fb9923b25afe3a
   	  SHELL
       end
   end
 end
+<<<<<<< HEAD
 
 Vagrant.configure("2") do |config|
 end
 
 
+=======
+>>>>>>> f877b9bb2c0cf119d660965e43fb9923b25afe3a
