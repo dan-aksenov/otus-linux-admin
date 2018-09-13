@@ -30,7 +30,11 @@ Vagrant.configure("2") do |config|
               mkdir -p ~root/.ssh
               cp ~vagrant/.ssh/auth* ~root/.ssh
 	      yum install epel-release -y
-	      if [ "$HOSTNAME" = web ]; then yum install nginx -y; fi
+        if [ "$HOSTNAME" = web ]
+        then yum install nginx -y
+        rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+        yum install https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-5.1.1-x86_64.rpm -y
+        fi
 	      if [ "$HOSTNAME" = log ]
 	      then
 	      yum install java -y
