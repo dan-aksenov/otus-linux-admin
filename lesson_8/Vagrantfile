@@ -60,7 +60,17 @@ Vagrant.configure("2") do |config|
               sed -i 's/disable-imagemap/enable-imagemap/g' /root/rpmbuild/SPECS/httpd.spec
               yum-builddep /root/rpmbuild/SPECS/httpd.spec -y
               rpmbuild -ba /root/rpmbuild/SPECS/*.spec
-              yum install -y /root/rpmbuild/RPMS/x86_64/httpd*.rpm
+	      yum install createrepo -y
+	      mkdir -p /repos/my-apache/
+	      cp /root/rpmbuild/RPMS/x86_64/httpd*.rpm /repos/my-apache/
+	      createrepo /repos/my-apache
+	      cat >/etc/yum.repos.d/my-apache.repo<<EOF
+	      [my-apache]
+	      name=Local-Base
+	      baseurl=file://repos/my-apache/$basearch/
+	      enabled=0
+	      EOF
+	      yum install httpd --disablerepo="*" --enablerepo="my-apache"
   	  SHELL
       end
   end
