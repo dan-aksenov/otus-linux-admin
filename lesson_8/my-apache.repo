@@ -1,0 +1,4 @@
+[my-apache]
+name=Local-Base
+baseurl=file://repos/my-apache/$basearch/
+enabled=0
