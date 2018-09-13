@@ -35,10 +35,10 @@ Vagrant.configure("2") do |config|
               rpmbuild -ba /root/rpmbuild/SPECS/*.spec
 	      yum install createrepo -y
 	      mkdir -p /repos/my-apache/x86_64
-  	    cp /root/rpmbuild/RPMS/x86_64/httpd*.rpm /repos/my-apache/
+  	    cp /root/rpmbuild/RPMS/x86_64/httpd*.rpm /repos/my-apache/x86_64
 	      createrepo /repos/my-apache/x86_64
 	      cp /vagrant/my-apache.repo /etc/yum.repos.d/my-apache.repo
-	      yum install httpd --disablerepo="*" --enablerepo="my-apache"
+	      yum install httpd --enablerepo="my-apache" -y
   	  SHELL
       end
   end
