@@ -30,20 +30,10 @@ Vagrant.configure("2") do |config|
               mkdir -p ~root/.ssh
               cp ~vagrant/.ssh/auth* ~root/.ssh
 	      yum install epel-release -y
+	      if [ "$HOSTNAME" = web ]; then yum install nginx -y; fi
+	      #if [ "$HOSTNAME" = log ]; then yum install nginx -y; fi
   	  SHELL
 
-      end
-      config.vm.define :web do |web|
-          web.vm.provision "shell", inline: <<-SHELL
-	      yum install java -y
-              rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
-              yum install -y https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.1.1.rpm 
-	  SHELL
-      end
-      config.vm.define :web do |web|
-          web.vm.provision "shell", inline: <<-SHELL
-	      yum install nginx -y
-	  SHELL
       end
   end
 end
