@@ -36,7 +36,7 @@ Vagrant.configure("2") do |config|
         if [ "$HOSTNAME" = web ]
         then yum install nginx -y
         yum install filebeat -y
-        
+        filebeat modules enable nginx
         fi
         
         if [ "$HOSTNAME" = log ]
