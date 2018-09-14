@@ -53,7 +53,8 @@ Vagrant.configure("2") do |config|
         
         yum install -y https://artifacts.elastic.co/downloads/kibana/kibana-5.1.1-x86_64.rpm
         sed -i 's/^#server.port/server.port/g' /etc/kibana/kibana.yml
-        sed -i 's/^#elasticsearch.url.*/elasticsearch.url: "http:\/\/192.168.11.101:9200"/g' /etc/kibana/kibana.yml
+        sed -i 's/^#elasticsearch.url/elasticsearch.url/g' /etc/kibana/kibana.yml
+        sed -i 's/localhost:9200/192.168.11.101:9200/g' /etc/kibana/kibana.yml
         sed -i 's/^#server.host.*/server.host: 192.168.11.101/g' /etc/kibana/kibana.yml
         systemctl enable kibana
         systemctl start kibana
