@@ -2,20 +2,21 @@
 # vi: set ft=ruby :
 
 Vagrant.configure(2) do |config|
-  config.vm.box = "chef/centos-7.1"
+  config.vm.box = "centos/7"
   config.vm.box_check_update = true
   #config.vm.network "forwarded_port", guest: 80, host: 8080
   #config.vm.synced_folder "../data", "/vagrant_data"
 
   config.vm.provision "shell", inline: <<-SHELL
-    set -x
-    yum update -y && yum upgrade -y
     yum install -y vim bacula-client
   SHELL
 
   config.vm.define "server", primary: true do |s|
     s.vm.hostname = 'bacula-server'
     s.vm.network "private_network", ip: "192.168.111.10"
+    s.vm.provider :virtualbox do |vb|
+      vb.customize ["modifyvm", :id, "--memory", "1024"]
+    end
     s.vm.provision "shell", inline: <<-SHELL
       yum install -y bacula-director bacula-storage bacula-console postgresql-server
       if [[ ! -f /etc/postgres-inited ]]; then
@@ -31,8 +32,7 @@ Vagrant.configure(2) do |config|
 /usr/libexec/bacula/grant_postgresql_privileges
 psql bacula -c "alter user bacula with password '$PG_BACULA_PASSWORD'"
 EOF
-
-          echo "localhost:5432:bacula:bacula:"$PG_BACULA_PASSWORD > /var/spool/bacula/.pgpass 
+        echo "localhost:5432:bacula:bacula:"$PG_BACULA_PASSWORD > /var/spool/bacula/.pgpass 
         chown bacula:bacula /var/spool/bacula/.pgpass
         chmod 600 /var/spool/bacula/.pgpass
         systemctl restart postgresql
@@ -79,6 +79,9 @@ EOF
   config.vm.define "client1" do |c|
     c.vm.hostname = 'bacula-client1'
     c.vm.network "private_network", ip: "192.168.111.11"
+    c.vm.provider :virtualbox do |vb|
+      vb.customize ["modifyvm", :id, "--memory", "1024"]
+    end
     c.vm.provision "shell", inline: <<-SHELL
       if [[ $(getent passwd eventstore >/dev/null) -ne 0 ]]; then
         # Create eventstore
@@ -94,35 +97,6 @@ EOF
         mkdir -p /etc/bacula/examples/
         cp /etc/bacula/bacula-fd.conf /etc/bacula/examples/.
         cp /vagrant/bacula-fd.client1_conf /etc/bacula/bacula-fd.conf
-        sed -i "s/@@FD_PASSWORD@@/N2I3NzNmYTg3YzMwOWMzN2NhOTljNmMzY/" /etc/bacula/bacula-fd.conf
-        mkdir -p /bacula/restore
-        chown -R bacula:bacula /bacula
-        chmod -R 700 /bacula
-        touch /etc/client-inited
-      fi
-      systemctl restart bacula-fd
-      systemctl enable bacula-fd
-    SHELL
-  end
-
-  config.vm.define "client2" do |c|
-    c.vm.hostname = 'bacula-client2'
-    c.vm.network "private_network", ip: "192.168.111.12"
-    c.vm.provision "shell", inline: <<-SHELL
-      # Create eventstore
-      if [[ $(getent passwd eventstore >/dev/null) -ne 0 ]]; then
-        mkdir -p /var/lib/eventstore
-        groupadd -r eventstore
-        useradd -d /var/lib/eventstore -r -g eventstore eventstore
-        chown -R eventstore:eventstore /var/lib/eventstore
-        chmod -R 755 /var/lib/eventstore
-        touch /etc/sysconfig/eventstore
-      fi
-      if [[ ! -f /etc/client-inited ]]; then
-        #  make sure .conf files are in same directory as Vagrantfile
-        mkdir -p /etc/bacula/examples/
-        cp /etc/bacula/bacula-fd.conf /etc/bacula/examples/.
-        cp /vagrant/bacula-fd.client2_conf /etc/bacula/bacula-fd.conf
         sed -i "s/@@FD_PASSWORD@@/N2I3NzNmYTg3YzMwOWMzN2NhOTljNmMzY/" /etc/bacula/bacula-fd.conf
         mkdir -p /bacula/restore
         chown -R bacula:bacula /bacula
