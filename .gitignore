@@ -1,3 +1,4 @@
 # vbox disks
 *.vdi
 .vagrant
+.vscode
