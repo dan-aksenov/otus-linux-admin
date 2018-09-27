@@ -29,6 +29,7 @@ Vagrant.configure("2") do |config|
               setenforce 0
               mkdir -p ~root/.ssh
               cp ~vagrant/.ssh/auth* ~root/.ssh
+              systemctl stop firewalld
         yum install epel-release -y
         cp /vagrant/elasticsearch.repo /etc/yum.repos.d/elasticsearch.repo
         rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
@@ -38,10 +39,12 @@ Vagrant.configure("2") do |config|
         yum install nginx -y
         systemctl start nginx
         yum install filebeat -y
-        systemctl start filebeat
+        cp /vagrant/filebeat.yml /etc/filebeat/filebeat.yml
+        #systemctl start filebeat
         filebeat modules enable nginx
         filebeat setup
-        filebeat -e
+        #filebeat -e
+        systemctl start filebeat
         fi
         
         if [ "$HOSTNAME" = log ]
@@ -51,13 +54,15 @@ Vagrant.configure("2") do |config|
         yum install elasticsearch -y
         sed -i 's/1g/500m/g' /etc/elasticsearch/jvm.options
         #sed -i 's/^#bootstrap.memory_lock/bootstrap.memory_lock/g' /etc/elasticsearch/elasticsearch.yml
-	      sed -i 's/^#network.host.*/network.host: 192.168.11.101/g' /etc/elasticsearch/elasticsearch.yml
-	      sed -i 's/^#http.port/http.port/g' /etc/elasticsearch/elasticsearch.yml
+	  sed -i 's/^#network.host.*/network.host: 192.168.11.101/g' /etc/elasticsearch/elasticsearch.yml
+	  sed -i 's/^#http.port/http.port/g' /etc/elasticsearch/elasticsearch.yml
         sed -i 's/^#LimitMEMLOCK/LimitMEMLOCK/g' /usr/lib/systemd/system/elasticsearch.service
         sed -i 's/^#MAX_LOCKED_MEMORY/MAX_LOCKED_MEMORY/g' /etc/sysconfig/elasticsearch
-	      systemctl daemon-reload
-	      systemctl enable elasticsearch
-	      systemctl start elasticsearch
+	  /usr/share/elasticsearch/bin/elasticsearch-plugin install ingest-geoip
+        /usr/share/elasticsearch/bin/elasticsearch-plugin install ingest-user-agent
+        systemctl daemon-reload
+	  systemctl enable elasticsearch
+	  systemctl start elasticsearch
         
         yum install -y kibana
         sed -i 's/^#server.port/server.port/g' /etc/kibana/kibana.yml

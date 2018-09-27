@@ -1,0 +1,18 @@
+filebeat.inputs:
+- type: log
+  enabled: false
+  paths:
+    - /var/log/*.log
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+setup.template.settings:
+  index.number_of_shards: 3
+output.logstash:
+  hosts: ["192.168.11.101:5443"]
+  bulk_max_size: 1024
+  template.name: "filebeat"
+  template.path: "filebeat.template.json"
+  template.overwrite: false
+setup.kibana:
+  host: "192.168.11.101"
