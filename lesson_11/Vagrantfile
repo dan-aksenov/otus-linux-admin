@@ -31,7 +31,11 @@ Vagrant.configure("2") do |config|
               yum -y install ipa-server ipa-server-dns bind bind-dyndb-ldap
               systemctl start named
               systemctl enable named
+<<<<<<< HEAD
               ipa-server-install -a secret12 --hostname=ipa.otustest.local -r OTUSTEST.LOCAL -p secret12 -n otustest.local -U
+=======
+              #ipa-server-install -a secret12 --hostname=ipa.otustest.local -r OTUSTEST.LOCAL -p secret12 -n otustest.local -U
+>>>>>>> 9abd4b895c9f3a14409ed3cc4bd5270905bd1fb8
   	  SHELL
       end
   end
