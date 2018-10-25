@@ -31,7 +31,7 @@ Vagrant.configure("2") do |config|
               cp ~vagrant/.ssh/auth* ~root/.ssh
               hostnamectl set-hostname $HOSTNAME.otustest.local
               echo 192.168.11.101 ipa.otustest.local ipa>>/etc/hosts
-              echo 192.168.11.102 client.otustest.local ipa>>/etc/hosts
+              echo 192.168.11.102 client.otustest.local client>>/etc/hosts
               if [ "$HOSTNAME" = ipa ]
               then
               yum -y install ipa-server ipa-server-dns bind bind-dyndb-ldap
@@ -42,8 +42,7 @@ Vagrant.configure("2") do |config|
               if [ "$HOSTNAME" = client ]
               then
               yum install freeipa-client -y
-              # this is not interactive. still need to run manually.
-              #ipa-client-install --mkhomedir --principal=admin --domain=otustest.local --server=ipa.otustest.local --realm=OTUSTEST.LOCAL
+              ipa-client-install --mkhomedir --principal=admin --domain=otustest.local --server=ipa.otustest.local --realm=OTUSTEST.LOCAL  --password=secret12 --mkhomedir --no-ntp --unattended
               fi
   	  SHELL
       end
