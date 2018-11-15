@@ -4,12 +4,19 @@
 # vim: set ft=ruby :
 
 MACHINES = {
+  :gate => {
+        :box_name => "centos/7",
+        :net => [
+                   {ip: '192.168.255.1', adapter: 2, netmask: "255.255.255.252", virtualbox__intnet: "router-inet"},
+                ]
+    },                 
   :router => {
         :box_name => "centos/7",
         :net => [
-                   {ip: '192.168.0.15', adapter: 2, netmask: "255.255.255.0", virtualbox__intnet: "net1"},
-                   {ip: '10.0.0.15', adapter: 3, netmask: "255.255.255.0", virtualbox__intnet: "net2"},
-                ]
+                   {ip: '192.168.255.2', adapter: 2, netmask: "255.255.255.252", virtualbox__intnet: "router-inet"},
+                   {ip: '192.168.0.15', adapter: 3, netmask: "255.255.255.0", virtualbox__intnet: "net1"},
+                   {ip: '10.0.0.15', adapter: 4, netmask: "255.255.255.0", virtualbox__intnet: "net2"},
+                ] 
   },
   :server1 => {
         :box_name => "centos/7",
@@ -51,9 +58,18 @@ Vagrant.configure("2") do |config|
           SHELL
         
         case boxname.to_s
-        when "router"
+        when "gate"
           box.vm.provision "shell", run: "always", inline: <<-SHELL
             sysctl net.ipv4.conf.all.forwarding=1
+            iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+            SHELL
+        when "router"
+          box.vm.provision "shell", run: "always", inline: <<-SHELL
+            echo "DEFROUTE=no" >> /etc/sysconfig/network-scripts/ifcfg-eth0
+            echo "GATEWAY=192.168.255.1" >> /etc/sysconfig/network-scripts/ifcfg-eth1
+            systemctl restart network
+            sysctl net.ipv4.conf.all.forwarding=1
+            iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
             SHELL
         when "server1"
           box.vm.provision "shell", run: "always", inline: <<-SHELL
