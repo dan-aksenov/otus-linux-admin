@@ -6,7 +6,6 @@
 MACHINES = {
   :inetRouter => {
         :box_name => "centos/6",
-        #:public => {:ip => '10.10.10.1', :adapter => 1},
         :net => [
                    {ip: '192.168.255.1', adapter: 2, netmask: "255.255.255.248", virtualbox__intnet: "router-net"},
                 ]
